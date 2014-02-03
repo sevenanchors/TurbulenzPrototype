@@ -10,6 +10,6 @@ http://biz.turbulenz.com/developers
 
 
 
-hub.turbulenz diagramm:
+hub.turbulenz workflow diagramm:
 
 http://docs.turbulenz.com/_images/hub-technology-diagram02.png
