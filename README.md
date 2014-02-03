@@ -4,10 +4,18 @@ Getting Started guide
 http://docs.turbulenz.com/starter/getting_started_guide.html
 
 
-register as developer:
+1. register as developer:
 
 http://biz.turbulenz.com/developers
 
+2. download the sdk and setup local development:
+
+http://docs.turbulenz.com/installing.html#developer-requirements
+
+
+
+
+==================================
 
 
 hub.turbulenz workflow diagramm:
