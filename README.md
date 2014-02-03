@@ -5,16 +5,14 @@ register as developer:
 
 http://biz.turbulenz.com/developers
 
-download the sdk and setup local development:
+
+SDK installing and setup :
 
 http://docs.turbulenz.com/installing.html#developer-requirements
 
 
-
-Getting Started guide 
+Getting Started guide :
 http://docs.turbulenz.com/starter/getting_started_guide.html
-
-
 
 
 ==================================
