@@ -1,0 +1,288 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>
+        myfirstapp
+    </title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <style type="text/css">
+html, body, div, span, object, iframe, h1, h2, p, a, img, ul, li, fieldset, form, label, legend, table, thead, tbody, tfoot, tr, th, td {
+    border: 0;
+    font-size: 100%;
+    margin: 0;
+    outline: 0;
+    padding: 0;
+    vertical-align: baseline;
+}
+    </style>
+    <!-- block tz_app_header -->
+    
+    <!-- end tz_app_header -->
+</head>
+<body style="background:#B4B4B4;font:normal normal normal 13px/1.231 Helvetica,Arial,sans-serif;text-shadow:1px 1px #F9F8F8;">
+    <div id="titlebar" style="position:fixed;height:65px;top:0;right:0;left:0;">
+        <strong style="font-size:24px;line-height:64px;margin:16px;">
+            <!-- block tz_app_title_name -->
+            
+            myfirstapp
+            
+            <!-- end tz_app_title_name -->
+        </strong>
+        <div id="titlelogo"
+             style="float:right;width:27px;height:27px;margin:18px 24px;">
+        </div>
+    </div>
+    <div id="sidebar"
+         style="background:#B4B4B4;position:fixed;width:303px;top:65px;left:0;">
+        <!-- block tz_app_html_controls -->
+        
+        
+        <!-- end tz_app_html_controls -->
+    </div>
+    <div id="engine" style="background:#939393;position:fixed;top:65px;
+                            bottom:0;right:0;left:303px;
+                            border-left:1px solid #898989;">
+        <!--
+          HTML to create a plugin or canvas instance.
+          Supplied by 'tz_engine_div' variable.
+        -->
+        
+        <canvas id="turbulenz_game_engine_canvas" moz-opaque="true" tabindex="1">
+            Sorry, but your browser does not support WebGL or does not have it
+            enabled.  To get a WebGL-enabled browser, please see:<br/>
+            <a href="http://www.khronos.org/webgl/wiki/Getting_a_WebGL_Implementation" target="_blank">
+                Getting a WebGL Implementation
+            </a>
+        </canvas>
+
+        <script type="text/javascript">
+            var canvasSupported = true;
+            (function()
+            {
+                var contextNames = ["webgl", "experimental-webgl"];
+                var context = null;
+                var canvas = document.createElement('canvas');
+
+                document.body.appendChild(canvas);
+
+                for (var i = 0; i < contextNames.length; i += 1)
+                {
+                    try {
+                        context = canvas.getContext(contextNames[i]);
+                    } catch (e) {}
+
+                    if (context) {
+                        break;
+                    }
+                }
+                if (!context)
+                {
+                    canvasSupported = false;
+                    window.alert("Sorry, but your browser does not support WebGL or does not have it enabled.");
+                }
+
+                document.body.removeChild(canvas);
+            }());
+            var TurbulenzEngine = {};
+        </script>
+    </div>
+
+    <!-- begin 'tz_include_js' variable -->
+    <script type="text/javascript" src="jslib/debug.js"></script>
+<script type="text/javascript" src="jslib/vmath.js"></script>
+<script type="text/javascript" src="jslib/utilities.js"></script>
+<script type="text/javascript" src="jslib/aabbtree.js"></script>
+<script type="text/javascript" src="jslib/observer.js"></script>
+<script type="text/javascript" src="jslib/webgl/ddsloader.js"></script>
+<script type="text/javascript" src="jslib/webgl/graphicsdevice.js"></script>
+<script type="text/javascript" src="jslib/webgl/inputdevice.js"></script>
+<script type="text/javascript" src="jslib/webgl/mathdevice.js"></script>
+<script type="text/javascript" src="jslib/webgl/networkdevice.js"></script>
+<script type="text/javascript" src="jslib/webgl/physicsdevice.js"></script>
+<script type="text/javascript" src="jslib/webgl/sounddevice.js"></script>
+<script type="text/javascript" src="jslib/webgl/soundtarloader.js"></script>
+<script type="text/javascript" src="jslib/webgl/tarloader.js"></script>
+<script type="text/javascript" src="jslib/webgl/tgaloader.js"></script>
+<script type="text/javascript" src="jslib/webgl/touch.js"></script>
+<script type="text/javascript" src="jslib/webgl/touchevent.js"></script>
+<script type="text/javascript" src="jslib/webgl/turbulenzengine.js"></script>
+<script type="text/javascript" src="jslib/camera.js"></script>
+<script type="text/javascript" src="jslib/floor.js"></script>
+<script type="text/javascript" src="jslib/requesthandler.js"></script>
+    <!-- end 'tz_include_js' variable -->
+
+    <script type="text/javascript">
+      // ----------------------------------------
+      // Embedded code and startup code.
+      // Supplied by 'tz_startup_code' variable.
+      // ----------------------------------------
+      
+TurbulenzEngine.onload = function onloadFn()
+{
+  var intervalID;
+  var gd = TurbulenzEngine.createGraphicsDevice({});
+	
+  var md = TurbulenzEngine.createMathDevice({});
+
+  var camera = Camera.create(md);
+  camera.lookAt(md.v3BuildZero(),
+                md.v3Build(0, 1, 0),
+                md.v3Build(0, 20, 100));
+
+  var floor = Floor.create(gd, md);
+	
+	var shader = null;
+	var technique = null;
+	
+	// Load Shader
+	var requestHandler = RequestHandler.create({});
+	requestHandler.request({
+		src: 'generic3D.cgfx.json',
+		onload: function (shaderJSON)
+		{
+			var shaderParameters = JSON.parse(shaderJSON);
+			shader = gd.createShader(shaderParameters);
+			technique = shader.getTechnique('vertexColor3D');
+		}
+	});
+	
+	// Technique Parameters
+	var techniqueParameters = gd.createTechniqueParameters({
+		worldViewProjection: md.m44BuildIdentity()
+	});
+	
+	// Create a vertex buffer for a cube
+	var vertLBF = [ -20, -20,  20, 1, 0, 0, 1 ];
+	var vertLTF = [ -20,  20,  20, 0, 1, 0, 1 ];
+	var vertRTF = [ +20,  20,  20, 0, 0, 1, 1 ];
+	var vertRBF = [ +20, -20,  20, 1, 1, 0, 1 ];
+	var vertLBB = [ -20, -20, -20, 0, 0, 1, 1 ];
+	var vertLTB = [ -20,  20, -20, 1, 1, 0, 1 ];
+	var vertRTB = [ +20,  20, -20, 1, 0, 0, 1 ];
+	var vertRBB = [ +20, -20, -20, 0, 1, 0, 1 ];
+	var vertData = [].concat(
+		vertLTF, vertLBF, vertRTF, vertRTF, vertLBF, vertRBF,  // front
+		vertRTF, vertRBF, vertRTB, vertRTB, vertRBF, vertRBB,  // right
+		vertLTB, vertLBB, vertLTF, vertLTF, vertLBB, vertLBF,  // left
+		vertRTB, vertRBB, vertLTB, vertLTB, vertRBB, vertLBB,  // back
+		vertLTB, vertLTF, vertRTB, vertRTB, vertLTF, vertRTF,  // top
+		vertLBF, vertLBB, vertRBF, vertRBF, vertLBB, vertRBB   // bottom
+	);
+	var numVerts = vertData.length;
+	
+	var vertexBuffer = gd.createVertexBuffer({
+		numVertices: numVerts,
+		attributes: [gd.VERTEXFORMAT_FLOAT3, gd.VERTEXFORMAT_UBYTE4N],
+		data: vertData,
+	});
+	
+	// Semantics (bind vertices to shader inputs)
+	var semantics = gd.createSemantics([ gd.SEMANTIC_POSITION,
+										 gd.SEMANTIC_COLOR ]);
+	
+	// Up vector
+	var upVector = md.v3Build(0, 1, 0);
+
+  function tick()
+  {
+    if (gd.beginFrame())
+    {
+      gd.clear([0.0, 0.0, 1.0, 1.0], 1.0, 0.0);
+	  camera.updateViewMatrix();
+	  camera.updateViewProjectionMatrix();
+	  floor.render(gd, camera);
+			
+		if (technique)
+		{
+			var angle = (TurbulenzEngine.time / (4 * Math.PI));
+			angle = (angle - Math.floor(angle)) * (2 * Math.PI);
+
+			var rotnMtx = md.m33FromAxisRotation(upVector, angle);
+			techniqueParameters.worldViewProjection =
+				md.m33MulM44(rotnMtx,
+							 camera.viewProjectionMatrix,
+							 techniqueParameters.worldViewProjection);
+		
+			gd.setTechnique(technique);
+			gd.setTechniqueParameters(techniqueParameters);
+		
+			gd.setStream(vertexBuffer, semantics);
+			gd.draw(gd.PRIMITIVE_TRIANGLES, numVerts, 0);
+		}
+		
+      gd.endFrame();
+    }
+  }
+
+  intervalID = TurbulenzEngine.setInterval(tick, 1000/60);
+};
+
+TurbulenzEngine.onunload = function gameOnunloadFn ()
+{
+  if (intervalID)
+  {
+    TurbulenzEngine.clearInterval(intervalID);
+  }
+  floor = null;
+  camera = null;
+  md = null;
+  gd = null;
+};
+
+TurbulenzEngine.onerror = function gameErrorFn (msg)
+{
+  // Handle the error, using msg to inform the developer
+  // what went wrong.
+
+  window.alert(msg);
+};
+
+        // Engine startup
+        window.onload = function ()
+        {
+            var appEntry = TurbulenzEngine.onload;
+            var appShutdown = TurbulenzEngine.onunload;
+            if (!appEntry) {
+                window.alert("TurbulenzEngine.onload has not been set");
+                return;
+            }
+
+            var canvas =
+                document.getElementById('turbulenz_game_engine_canvas');
+
+            var startCanvas = function startCanvasFn()
+            {
+                if (canvas.getContext && canvasSupported)
+                {
+                    TurbulenzEngine = WebGLTurbulenzEngine.create({
+                        canvas: canvas,
+                        fillParent: true
+                    });
+
+                    if (!TurbulenzEngine) {
+                        window.alert("Failed to init TurbulenzEngine (canvas)");
+                        return;
+                    }
+
+                    TurbulenzEngine.onload = appEntry;
+                    TurbulenzEngine.onunload = appShutdown;
+                    appEntry()
+                }
+            }
+
+            var previousOnBeforeUnload = window.onbeforeunload;
+            window.onbeforeunload = function ()
+            {
+                if (TurbulenzEngine.onunload) {
+                    TurbulenzEngine.onunload.call(this);
+                }
+            };  // window.beforeunload
+
+            startCanvas();
+        };  // window.onload()
+
+    </script>
+
+</body>
+</html>

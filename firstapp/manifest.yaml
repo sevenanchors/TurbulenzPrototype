@@ -1,0 +1,17 @@
+aspect_ratio: '16:9'
+canvas_main: ''
+cover_art: ''
+deploy_files: []
+deployed: Never
+engine_version: '0.28'
+flash_main: ''
+has_notifications: false
+is_multiplayer: false
+is_temp: false
+mapping_table: ''
+modified: 22:45 | 20/03/2014
+path: C:\Turbulenz\dev\firstapp
+plugin_main: ''
+slug: my-first-app
+title: My First App
+title_logo: ''

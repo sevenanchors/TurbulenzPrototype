@@ -1,0 +1,216 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+    <title>
+        myfirstapp
+    </title>
+    <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+    <style type="text/css">
+html, body, div, span, object, iframe, h1, h2, p, a, img, ul, li, fieldset, form, label, legend, table, thead, tbody, tfoot, tr, th, td {
+    border: 0;
+    font-size: 100%;
+    margin: 0;
+    outline: 0;
+    padding: 0;
+    vertical-align: baseline;
+}
+    </style>
+    <!-- block tz_app_header -->
+    
+    <!-- end tz_app_header -->
+</head>
+<body style="background:#B4B4B4;font:normal normal normal 13px/1.231 Helvetica,Arial,sans-serif;text-shadow:1px 1px #F9F8F8;">
+    <div id="titlebar" style="position:fixed;height:65px;top:0;right:0;left:0;">
+        <strong style="font-size:24px;line-height:64px;margin:16px;">
+            <!-- block tz_app_title_name -->
+            
+            myfirstapp
+            
+            <!-- end tz_app_title_name -->
+        </strong>
+        <div id="titlelogo"
+             style="float:right;width:27px;height:27px;margin:18px 24px;">
+        </div>
+    </div>
+    <div id="sidebar"
+         style="background:#B4B4B4;position:fixed;width:303px;top:65px;left:0;">
+        <!-- block tz_app_html_controls -->
+        
+        
+        <!-- end tz_app_html_controls -->
+    </div>
+    <div id="engine" style="background:#939393;position:fixed;top:65px;
+                            bottom:0;right:0;left:303px;
+                            border-left:1px solid #898989;">
+        <!--
+          HTML to create a plugin or canvas instance.
+          Supplied by 'tz_engine_div' variable.
+        -->
+        
+        <script type="text/javascript">
+            if (window.ActiveXObject)
+            {
+                document.write('<object id="turbulenz_game_loader_object" classid="CLSID:49AE29B1-3E7D-4f62-B3D2-D6F7C7BEE728" width="100%" height="100%">');
+                document.write('<param name="type" value="application/vnd.turbulenz" \/>');
+                document.write('<p>You need the Turbulenz Engine for this.');
+                document.write('<\/p>');
+                document.write('<\/object>');
+            }
+            else
+            {
+                // browser supports Netscape Plugin API
+                document.write('<object id="turbulenz_game_loader_object" type="application/vnd.turbulenz" width="100%" height="100%">');
+                document.write('<p>You need the Turbulenz Engine for this.');
+                document.write('<\/p>');
+                document.write('<\/object>');
+            }
+        </script>
+    </div>
+
+    <!-- begin 'tz_include_js' variable -->
+    
+
+    <!-- end 'tz_include_js' variable -->
+
+    <script type="text/javascript">
+      // ----------------------------------------
+      // Embedded code and startup code.
+      // Supplied by 'tz_startup_code' variable.
+      // ----------------------------------------
+      
+
+        window.onload = function ()
+        {
+            var loader = document.getElementById('turbulenz_game_loader_object');
+            var config = {
+                url: 'myfirstapp.tzjs'
+            };
+
+            // Engine unload
+            var previousOnBeforeUnload = window.onbeforeunload;
+            window.onbeforeunload = function ()
+            {
+                try {
+                    loader.unloadEngine();
+                } catch (e) {
+                }
+                if (previousOnBeforeUnload) {
+                    previousOnBeforeUnload.call(this);
+                }
+            };
+
+            
+
+            function findBestVersion(request, availableVersions)
+            {
+                var reqNumbers = request.split(".");
+                var candidate;
+
+                for (var vIdx = 0; vIdx < availableVersions.length; vIdx += 1)
+                {
+                    var ver = availableVersions[vIdx];
+                    var verNumbers = ver.split(".");
+
+                    // Check the version has the correct major and minor
+
+                    if ((verNumbers[0] !== reqNumbers[0]) ||
+                        (verNumbers[1] !== reqNumbers[1]))
+                    {
+                        continue;
+                    }
+
+                    // If there is already a candidate, compare point and build
+
+                    if (candidate)
+                    {
+                        if (verNumbers[2] > candidate[2])
+                        {
+                            candidate = verNumbers;
+                            continue;
+                        }
+                        if ((verNumbers[2] === candidate[2]) &&
+                            (verNumbers[3] > candidate[3]))
+                        {
+                            candidate = verNumbers;
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        candidate = verNumbers;
+                    }
+                }
+
+                if (candidate)
+                {
+                    candidate = candidate.join(".");
+                }
+                return candidate;
+            }
+
+            var now = Date.now || function () { return new Date().valueOf(); };
+            var loadDeadline = now() + 5 * 1000;  // 5 seconds
+            var loadInterval = 500;               // 0.5 seconds
+
+            var attemptLoad = function attemptLoadFn()
+            {
+                // Check plugin and load engine
+                var err = 0;
+                if (!loader) {
+                    err = "no loader DOM element";
+                }
+                if (err === 0 &&
+                    !loader.loadEngine &&
+                    loader.hasOwnProperty &&
+                    !loader.hasOwnProperty('loadEngine')) {
+                    err = "loader has no 'loadEngine' property";
+                }
+                if (err === 0 &&
+                    !loader.getAvailableEngines &&
+                    !loader.hasOwnProperty('getAvailableEngines')) {
+                    err = "no 'getAvailableEngines'. Plugin may be "
+                            + "an older version.";
+                }
+
+                if (err === 0)
+                {
+                    var availableEngines = loader.getAvailableEngines();
+                    var samplesVersion = '0.28';
+                    var requestVersion =
+                        findBestVersion(samplesVersion, availableEngines);
+                    if (!requestVersion)
+                    {
+                        err = "No engines installed that are compatible with "
+                                + "version " + samplesVersion;
+                    }
+                    else
+                    {
+                        config.version = requestVersion;
+                    }
+                }
+
+                if (err === 0)
+                {
+                    // Plugin is in place
+                    if (!loader.loadEngine(config))
+                    {
+                        window.alert("Call to loadEngine failed");
+                    }
+                    return;
+                }
+
+                // Continue to wait for the plugin
+                if (loadDeadline >= now()) {
+                    window.setTimeout(attemptLoad, loadInterval);
+                } else {
+                    window.alert("No Turbulenz Loader found ("+err+")");
+                }
+            };
+            attemptLoad();
+
+        };  // window.onload()
+    </script>
+
+</body>
+</html>
